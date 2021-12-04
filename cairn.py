@@ -22,6 +22,23 @@ publication: //*[@id="ctl00_ContentPlaceHolder1_lblPublication"]
 author: //*[@id="ctl00_ContentPlaceHolder1_lblAuthor"]
 headline: //*[@id="ctl00_ContentPlaceHolder1_lblHeadline"]
 
+#to create db
+import sqlite3
+with sqlite3.connect('cairndb') as con:
+    cur=con.cursor()
+    table="""CREATE TABLE "cairn_table" (
+                "id" INTEGER PRIMARY KEY AUTOINCREMENT, -- rowid
+                "date" TEXT,
+                "publication" TEXT,
+                "author" TEXT,
+                "headline" TEXT,
+                "items" TEXT                
+            )
+            """
+    cur.execute(table)
+    print ("created Cairn_table") 
+
+
 
 module get element by xpath:
 ============================
@@ -46,7 +63,7 @@ def get_text(url,keyword_processor):
     lfound = list(set(keyword_processor.extract_keywords(data)))
     return (lfound)
     
-def do_db(lfound, cur):
+def put_db(lfound, cur):
     # Writing to table
     try:
         datex=dom.xpath('//*[@id="ctl00_ContentPlaceHolder1_lblNewsDate"]')[0].text
@@ -54,12 +71,12 @@ def do_db(lfound, cur):
         id_pub=dom.xpath(' //*[@id="ctl00_ContentPlaceHolder1_lblPublication"]')[0].text
         id_author= dom.xpath('//*[@id="ctl00_ContentPlaceHolder1_lblAuthor"]')[0].text
         id_headline= dom.xpath('//*[@id="ctl00_ContentPlaceHolder1_lblHeadline"]')[0].text
-        sql = """INSERT INTO cairndb(date, publication,author, headline, items) VALUES(?,?,?,?,?)"""
+        sql = """INSERT INTO cairn_table(date, publication,author, headline, items) VALUES(?,?,?,?,?)"""
         data = (id_date, id_pub,id_author,id_headline, lfound)
         cur.execute(sql,data)
         #con.commit()
     else:
-        sql = """INSERT INTO cairndb(date, publication,author, headline, items) VALUES(?,?,?,?,?)"""
+        sql = """INSERT INTO cairn_table(date, publication,author, headline, items) VALUES(?,?,?,?,?)"""
         data = ('*****', '*****','*****','*****', '*****')
         cur.execute(sql,data)
         #con.commit()
