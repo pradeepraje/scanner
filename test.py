@@ -1,18 +1,22 @@
-import requests
-from lxml import etree
-from bs4 import BeautifulSoup
 
+import selenium as se
+from selenium import webdriver
+import time
 
+options = se.webdriver.ChromeOptions()
+options.add_argument('headless')
+driver = se.webdriver.Chrome(options=options)
+start = time.localtime()
 
-url='https://mtrack.merryspiders.com/NewsDetailsPublished.aspx?NewsId=LL4TnLrpK34t5Zo2DiVMpA==&MediaType='
-webpage = requests.get(url)
-soup = BeautifulSoup(webpage.content, "html.parser")
-dom = etree.HTML(str(soup))
-text=(dom.xpath('//*[@id="ctl00_ContentPlaceHolder1_TabContainer1_TabPanel2_lblNews"]/div[3]/span')[0].text)
-print(text)
-
-url='https://mtrack.merryspiders.com/NewsDetailsPublished.aspx?NewsId=e3E6Ggaq2uAX9SosCfBB7Q==&MediaType='
-webpage=requests.get(url)
-soup=BeautifulSoup(webpage.content,'html.parser')
-dom=lxml.etree.HTML(str(soup))
-print(dom.xtree.get_element_by_id("ctl00_ContentPlaceHolder1_TabContainer1_TabPanel2_lblNews").text_content())
+driver.get('http://mtrack.merryspiders.com/NewsDetailsPublished.aspx?NewsId=e3E6Ggaq2uAX9SosCfBB7Q==&MediaType=')
+time.sleep(5)
+page= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_TabContainer1_TabPanel2_lblNews"]').text
+text = driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_TabContainer1_TabPanel2_lblNews"]').text
+date= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblNewsDate"]').text
+publication= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblPublication"]').text
+author= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblJournalist"]').text
+headline= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblHeadline"]').text
+print(date,'\n',publication,'\n',author,'\n',headline)
+end = time.localtime()
+print("Total execution time in seconds," '\n')
+print(end.tm_sec - start.tm_sec)
