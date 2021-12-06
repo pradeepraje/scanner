@@ -23,7 +23,7 @@ author: .xpath('//*[@id="ctl00_ContentPlaceHolder1_lblJournalist"]')[0].text)hea
 
 #to create db
 import sqlite3
-with sqlite3.connect('cairndb') as con:
+with sqlite3.connect('cairndb.db') as con:
     cur=con.cursor()
     table="""CREATE TABLE "cairn_table" (
                 "id" INTEGER PRIMARY KEY AUTOINCREMENT, -- rowid
@@ -67,33 +67,35 @@ def get_keywords(driver):
     
 def put_db(driver,lfound):
     # Writing to table
-
-    datex= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblNewsDate"]').text
-    id_date=datetime.strftime(datetime.strptime(datex, '%d-%m-%Y'), '%Y-%m-%d')
-    id_pub= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblPublication"]').text
-    id_author= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblJournalist"]').text
-    id_headline= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblHeadline"]').text
-
-    sql = """INSERT INTO cairn_table(date, publication,author, headline, items) VALUES(?,?,?,?,?)"""
-    data = (id_date, id_pub,id_author,id_headline, lfound)
-    cur.execute(sql,data)
-    #con.commit()
-
+    try:
+        datex= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblNewsDate"]').text
+        id_date=datetime.strftime(datetime.strptime(datex, '%d-%m-%Y'), '%Y-%m-%d')
+        id_pub= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblPublication"]').text
+        id_author= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblJournalist"]').text
+        id_headline= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblHeadline"]').text
+        xfound=', '.join(lfound)
+        sql = """INSERT INTO cairn_table(date, publication,author, headline, items) VALUES(?,?,?,?,?)"""
+    except:
+        data = ('*****', '*****','*****','*****','*****')
+    else:
+        data = (id_date, id_pub,id_author,id_headline, xfound)
+    finally:
+        cur.execute(sql,data)
+    
 
 #main block
 #import pdb; pdb.set_trace()
 keyword_processor = KeywordProcessor()
 for item in ['Cairn Energy','Cairn plc','arbitration','retrospective tax','retro tax']:
 	keyword_processor.add_keyword(item)
-with sqlite3.connect('cairndb') as con:
+with sqlite3.connect('cairndb.db') as con:
     driver=se.webdriver.Chrome(options=options) 
     cur=con.cursor() # dbase cursor initialised    
     ibook = xlrd.open_workbook("cairn18.xls", formatting_info=True)
     isheet = ibook.sheet_by_index(0)
-    for row in range(1,11):
+    for row in range(5,11):
         link = isheet.hyperlink_map.get((row, 1))
-        url = '(No URL)' if link is None else link.url_or_path
-        print(url)
+        url = '(No URL)' if link is None else link.url_or_path        
         driver.get(url)
         time.sleep(5)
 
@@ -103,7 +105,8 @@ with sqlite3.connect('cairndb') as con:
         else:
             continue;
  
- 
+driver.close()
+driver.quit() 
 con.close() 
-browser.quit()
+
  
