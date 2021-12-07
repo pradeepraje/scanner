@@ -43,11 +43,11 @@ with sqlite3.connect('cairndb.db') as con:
 #============================
 #imports segment
 #from lxml import etree
-import time,xlrd,sqlite3
+import time,xlrd,sqlite3, pickle
 #from bs4 import BeautifulSoup
 from datetime import datetime
 from flashtext import KeywordProcessor
-import sqlite3
+import pandas as pd
 import selenium as se
 from selenium import webdriver
 
@@ -65,7 +65,7 @@ def get_keywords(driver):
     lfound = list(set(keyword_processor.extract_keywords(data)))
     return (lfound)
     
-def put_db(driver,lfound):
+def put_db(driver,lfound, out_frame):
     # Writing to table
     try:
         datex= driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_lblNewsDate"]').text
@@ -79,16 +79,18 @@ def put_db(driver,lfound):
         data = ('*****', '*****','*****','*****','*****')
     else:
         data = (id_date, id_pub,id_author,id_headline, xfound)
+        out_frame.append(list(data))
     finally:
         cur.execute(sql,data)
     
 
 #main block
-#import pdb; pdb.set_trace()
+
 keyword_processor = KeywordProcessor()
 for item in ['Cairn Energy','Cairn plc','arbitration','retrospective tax','retro tax']:
 	keyword_processor.add_keyword(item)
 with sqlite3.connect('cairndb.db') as con:
+    out_frame=[]
     driver=se.webdriver.Chrome(options=options) 
     cur=con.cursor() # dbase cursor initialised    
     ibook = xlrd.open_workbook("cairn18.xls", formatting_info=True)
@@ -101,12 +103,12 @@ with sqlite3.connect('cairndb.db') as con:
 
         lfound=get_keywords(driver)        
         if (("Cairn Energy" or "Cairn plc" in lfound)) and (('arbitration' or 'retrospective tax' or 'retro tax')in lfound):  
-            put_db(driver,lfound)
+            put_db(driver,lfound,out_frame)
         else:
             continue;
  
 driver.close()
 driver.quit() 
 con.close() 
-
- 
+df = pd.DataFrame(out_frame, columns=['Date', 'publication','Author', 'Headline', 'Items'])
+df.to_pickle('cairn.pkl')
