@@ -1,3 +1,7 @@
+ssh -i <private key path> azureuser@52.182.129.185
+
+sVQUQJYgZ.w%idGnHpw7haPJ&Pc)9U9*
+
 
 import selenium as se
 from selenium import webdriver
