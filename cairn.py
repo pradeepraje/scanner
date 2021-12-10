@@ -97,25 +97,28 @@ with sqlite3.connect('cairndb.db') as con:
     out_frame=[]
     driver=se.webdriver.Chrome(options=options) 
     cur=con.cursor() # dbase cursor initialised    
-    ibook = xlrd.open_workbook("cairn17.xls", formatting_info=True)
-    isheet = ibook.sheet_by_index(0)
-    for row in range(21):
-        if (isheet.cell_value(row,5).lower()=='english'):
-            link = isheet.hyperlink_map.get((row, 1))
-            url = '(No URL)' if link is None else link.url_or_path        
-            driver.get(url)
-            webpage=requests.get(url)
-            soup=BeautifulSoup(webpage.content, 'html.parser')
-            dom=etree.HTML(str(soup))
-            print(row)
-            time.sleep(3)
-            lfound=get_keywords(driver)        
-            if (("Cairn Energy" or "Cairn plc" in lfound)) and (('arbitration' or 'retrospective tax' or 'retro tax' or 'tax demand' or 'tax notice')in lfound):  
-                put_db(driver,dom,lfound,out_frame)
+    ibook = xlrd.open_workbook("cairn18.xls", formatting_info=True)
+    for ix in range(7):
+        isheet = ibook.sheet_by_index(ix)
+        print(isheet.name)
+        for row in range(isheet.nrows+1):
+            if (isheet.cell_value(row,5).lower()=='english'):
+                link = isheet.hyperlink_map.get((row, 1))
+                url = '(No URL)' if link is None else link.url_or_path        
+                driver.get(url)
+                webpage=requests.get(url
+                soup=BeautifulSoup(webpage.content, 'html.parser')
+                dom=etree.HTML(str(soup))
+                print(row)
+                time.sleep(3)
+                lfound=get_keywords(driver)        
+                if (("Cairn Energy" or "Cairn plc" in lfound)) and (('arbitration' or 'retrospective tax' or 'retro tax' or 'tax demand' or 'tax notice')in lfound):  
+                    put_db(driver,dom,lfound,out_frame)
+                else:
+                    continue
             else:
                 continue
-        else:
-            continue
+        #continue
 driver.close()
 driver.quit() 
 con.close() 
