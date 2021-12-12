@@ -24,3 +24,23 @@ print(date,'\n',publication,'\n',author,'\n',headline)
 end = time.localtime()
 print("Total execution time in seconds," '\n')
 print(end.tm_sec - start.tm_sec)
+
+import sqlite3
+con3 = sqlite3.connect("combine.db")
+
+con3.execute("ATTACH 'results_a.db' as dba")
+
+con3.execute("BEGIN")
+for row in con3.execute("SELECT * FROM dba.sqlite_master WHERE type='table'"):
+    combine = "INSERT INTO "+ row[1] + " SELECT * FROM dba." + row[1]
+    print(combine)
+    con3.execute(combine)
+con3.commit()
+con3.execute("detach database dba")
+
+
+attach 'c:\test\b.db3' as toMerge;           
+BEGIN; 
+insert into AuditRecords select * from toMerge.AuditRecords; 
+COMMIT; 
+detach toMerge;

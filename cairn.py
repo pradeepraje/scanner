@@ -62,11 +62,11 @@ with sqlite3.connect('cairndb.db') as con:
     driver=se.webdriver.Chrome(options=options) 
     cur=con.cursor() # dbase cursor initialised    
     ibook = xlrd.open_workbook("cairn18.xls", formatting_info=True)
-    for ix in [2,3]:
+    for ix in [1,5]:
         isheet = ibook.sheet_by_index(ix)
         print(isheet.name, '\t', isheet.nrows)
         try:
-            for row in range(isheet.nrows+1):
+            for row in range(isheet.nrows):
                 
                 if (isheet.cell_value(row,5).lower()=='english'):
                     link = isheet.hyperlink_map.get((row, 1))
