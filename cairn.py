@@ -62,7 +62,7 @@ with sqlite3.connect('cairndb.db') as con:
     driver=se.webdriver.Chrome(options=options) 
     cur=con.cursor() # dbase cursor initialised    
     ibook = xlrd.open_workbook("cairn18.xls", formatting_info=True)
-    for ix in range(2):
+    for ix in [2,3]:
         isheet = ibook.sheet_by_index(ix)
         print(isheet.name, '\t', isheet.nrows)
         try:
