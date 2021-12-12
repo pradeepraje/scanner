@@ -1,45 +1,4 @@
-'''import io
-from flashtext import KeywordProcessor
-import sqlite3 as sq
 
-keyword_processor = KeywordProcessor()
-for item in ['Cairn Energy','Cairn plc','arbitration','retrospective tax','retro tax']:
-	keyword_processor.add_keyword(item)
-
-
-#file open routine
-with io.open("cairn1.txt", mode="r", encoding="utf-8") as fin:
-    data=fin.read()
-
-
-keywords_found = set(keyword_processor.extract_keywords(data))
-print(keywords_found)
-
-
-xpath for text: //*[@id="ctl00_ContentPlaceHolder1_TabContainer1_TabPanel2_lblNews"]/div[3]/span
-date: .xpath('//*[@id="ctl00_ContentPlaceHolder1_lblNewsDate"]')[0].text)
-publication: .xpath('//*[@id="ctl00_ContentPlaceHolder1_lblPublication"]')[0].text
-author: .xpath('//*[@id="ctl00_ContentPlaceHolder1_lblJournalist"]')[0].text)headline: .xpath('//*[@id="ctl00_ContentPlaceHolder1_lblHeadline"]')[0].text
-
-#to create db
-import sqlite3
-with sqlite3.connect('cairndb.db') as con:
-    cur=con.cursor()
-    table="""CREATE TABLE "cairn_table" (
-                "id" INTEGER PRIMARY KEY AUTOINCREMENT, -- rowid
-                "date" TEXT,
-                "publication" TEXT,
-                "author" TEXT,
-                "headline" TEXT,
-                "items" TEXT                
-            )
-            """
-    cur.execute(table)
-    print ("created Cairn_table") 
-
-
-'''
-#module get element by xpath:
 #============================
 #imports segment
 from lxml import etree
@@ -50,6 +9,11 @@ from flashtext import KeywordProcessor
 import pandas as pd
 import selenium as se
 from selenium import webdriver
+from timeit import default_timer as timer
+from datetime import timedelta
+from selenium.webdriver.common.by import By
+
+
 
 #early definition
 options = se.webdriver.ChromeOptions()
@@ -65,7 +29,7 @@ def get_keywords(driver):
     lfound = list(set(keyword_processor.extract_keywords(data)))
     return (lfound)
     
-def put_db(driver, dom,lfound, out_frame):
+def put_db(driver, dom,lfound):
     # Writing to table
     datex= dom.xpath('//*[@id="ctl00_ContentPlaceHolder1_lblNewsDate"]')[0].text
     id_date=datetime.strftime(datetime.strptime(datex, '%d-%m-%Y'), '%Y-%m-%d')
@@ -83,47 +47,56 @@ def put_db(driver, dom,lfound, out_frame):
         id_author="*******"
     sql = """INSERT INTO cairn_table(date, publication,author, headline, items) VALUES(?,?,?,?,?)"""
     data = (id_date, id_pub,id_author,id_headline, xfound)
-    out_frame.append(list(data))
     cur.execute(sql,data)
+
 #Ends
 
 #main block
-start = time.localtime()
-print(start.tm_sec)
+#start = timer()
+start=time.time()
 keyword_processor = KeywordProcessor()
 for item in ['Cairn Energy','Cairn plc','arbitration','retrospective tax','retro tax']:
 	keyword_processor.add_keyword(item)
 with sqlite3.connect('cairndb.db') as con:
-    out_frame=[]
+    
     driver=se.webdriver.Chrome(options=options) 
     cur=con.cursor() # dbase cursor initialised    
     ibook = xlrd.open_workbook("cairn18.xls", formatting_info=True)
-    for ix in range(7):
+    for ix in range(2):
         isheet = ibook.sheet_by_index(ix)
-        print(isheet.name)
-        for row in range(isheet.nrows+1):
-            if (isheet.cell_value(row,5).lower()=='english'):
-                link = isheet.hyperlink_map.get((row, 1))
-                url = '(No URL)' if link is None else link.url_or_path        
-                driver.get(url)
-                webpage=requests.get(url
-                soup=BeautifulSoup(webpage.content, 'html.parser')
-                dom=etree.HTML(str(soup))
-                print(row)
-                time.sleep(3)
-                lfound=get_keywords(driver)        
-                if (("Cairn Energy" or "Cairn plc" in lfound)) and (('arbitration' or 'retrospective tax' or 'retro tax' or 'tax demand' or 'tax notice')in lfound):  
-                    put_db(driver,dom,lfound,out_frame)
+        print(isheet.name, '\t', isheet.nrows)
+        try:
+            for row in range(isheet.nrows+1):
+                
+                if (isheet.cell_value(row,5).lower()=='english'):
+                    link = isheet.hyperlink_map.get((row, 1))
+                    url = '(No URL)' if link is None else link.url_or_path        
+                    driver.get(url)
+                    webpage=requests.get(url)
+                    soup=BeautifulSoup(webpage.content, 'html.parser')
+                    dom=etree.HTML(str(soup))
+                    time.sleep(5)
+                    lfound=get_keywords(driver)        
+                    if (("Cairn Energy" or "Cairn plc" in lfound)) and (('arbitration' or 'retrospective tax' or 'retro tax' or 'tax demand' or 'tax notice')in lfound):  
+                        put_db(driver,dom,lfound)                    
+                if row%100==0:
+                    print(row)
+                    con.commit()
+                    '''else:
+                        continue
                 else:
-                    continue
-            else:
-                continue
-        #continue
-driver.close()
-driver.quit() 
-con.close() 
-df = pd.DataFrame(out_frame, columns=['Date', 'publication','Author', 'Headline', 'Items'])
-df.to_pickle('cairn.pkl')
-end = time.localtime()
-print("Total execution time in seconds," '\n')
-print(end.tm_sec - start.tm_sec)
+                    continue'''
+            
+        except:
+            print("error at "+ isheet.name+'\t'+ str(row) + '\t'+isheet.cell_value(row,1))
+        else:
+            #print("For "+ str(row) +'\t'+ str(timedelta(seconds=timer()-start)))
+            print("For "+ str(row) +'\t'+ str(time.time()-start))
+        finally:
+            con.commit()
+            print("processing done")
+
+
+    driver.quit() 
+con.close()
+print(timedelta(seconds=time.time()-start))
