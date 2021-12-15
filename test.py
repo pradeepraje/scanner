@@ -44,3 +44,149 @@ BEGIN;
 insert into AuditRecords select * from toMerge.AuditRecords; 
 COMMIT; 
 detach toMerge;
+
+
+
+
+library(RSQLite)
+library(DBI)
+dba <- read.csv("tempa.csv")
+
+
+df_1 %>%
+  group_by(Year, Month) %>%
+  summarise(count= n()) 
+  
+   barplot(by_year$n, axes=FALSE, col=rainbow(10))
+   
+jpeg('d:/raje/bert/by_year.jpg',width = 6, height = 4, unit="in", res=300)  
+xx=barplot(by_year$n, axes=FALSE, ylim= c(0,max(by_year$n+200)),xlab="Year-wise count", col=rainbow(10), names.arg=c("2015","2016","2017","2018","2019","2020","2021"))
+text(x = xx, y = by_year$n+10, label = by_year$n, pos = 3, cex = 1.0, col = "black")
+dev.off()
+
+library(dplyr)
+by_month<-temp %>% count(MY)
+
+#jpeg('d:/raje/bert/by_month.jpg',width = 6, height = 4, unit="in", res=300)  
+xx=barplot(by_month$n,  ylim= c(0,max(by_month$n+10)),xlab="Month-wise distribution", col="#2E9FDF", names.arg=c("2015",rep('',11),"2016",rep('',35),"2017",rep('',11),"2018",rep('',11),"2019",rep('',11),"2020",rep('',11),"2021"))
+text(x = xx, y = by_year$n+10, label = by_year$n, pos = 3, cex = 1.0, col = "black")
+dev.off()
+
+
+barplot(by_month$n,ylim= c(0,max(by_month$n+10)),xlab="Month-wise distribution", col=rainbow(20))
+
+x<-barplot(by_month$n,beside=TRUE,col=rep(c("red","blue","green","yellow","magenta","pink","maroon"),each=12))
+axis(1, at=x, label=c("2015",rep('',12),"2016",rep('',12),"2017",rep('',12),"2018",rep('',12),"2019",rep('',12),"2020",rep('',12),"2021",rep("",2)),cex.axis=0.8)
+
+x<-barplot(by_month$n,beside=TRUE,col=rep(c("red","blue","green","yellow","magenta","pink","maroon"),each=12),xaxt='n')
+axis(1, at=x, label=c("2015",rep('',12),"2016",rep('',12),"2017",rep('',12),"2018",rep('',12),"2019",rep('',12),"2020",rep('',12),"2021",rep("",2)),cex.axis=0.8,las=1)
+
+
+> 
+> axis(1, at=x, label=c("2015",rep('',12),"2016",rep('',12),"2017",rep('',12),"2018",rep('',12),"2019",rep('',12),"2020",rep('',12),"2021",rep("",2)),cex.axis=0.8,las=2)
+> axis(1, at=x, label=c("2015",rep('',12),"2016",rep('',12),"2017",rep('',12),"2018",rep('',12),"2019",rep('',12),"2020",rep('',12),"2021",rep("",2)),cex.axis=0.8,las=2,tck=0.1)
+> axis(1, at=x, label=c("2015",rep('',12),"2016",rep('',12),"2017",rep('',12),"2018",rep('',12),"2019",rep('',12),"2020",rep('',12),"2021",rep("",2)),cex.axis=0.8,las=2)
+> 
+
+
+x<-barplot(by_month$n,beside=TRUE,col=rep(c("red","blue","green","yellow","magenta","pink","maroon"),each=12),xaxt='n')
+axis(1, at=x, label=c("2015",rep('',51),"2019",rep('',51),"2021",rep("",2)),tick=FALSE,cex.axis=0.8, las=2)
+
+&lt;-c(6,9,11,13,15)
+#create dataframe
+data=data.frame(x=LETTERS[1:5], y=y)
+#set up labels
+
+
+#lollipol chart working perfect
+
+library(ggplot2)
+y<-c(6,9,11,13,15)
+data=data.frame(x=LETTERS[1:5], y=y)
+#set up labels
+yat<-c("","3","6","9","12","15","18")
+xat<-c("one","two","three","four","five")
+
+p<-ggplot(data, aes(x=x, y=y)) +
+    geom_segment( aes(x=x, xend=x, y=0, yend=y), color="springgreen",size=4) +
+    geom_point( size=8, color="lawngreen", fill=alpha("springgreen3", 0.3), alpha=0.7,    shape=21, stroke=2)+
+    theme_bw() +
+    scale_y_continuous(limits = c(0,18), breaks = c(0,3,6,9,12,15,18),labels=yat)+
+      coord_flip() + 
+      annotate("text", x = 1.225:5.225, y = 0.01, label = xat, size=4,hjust=0.05,family="serif",fontface =2)+
+      theme(
+     panel.grid.minor.x = element_blank(),
+     panel.grid.minor.y = element_blank(),
+     panel.border = element_blank(),
+     axis.line=element_blank(),
+     axis.title.x=element_blank(),
+     axis.title.y=element_blank(), 
+       axis.text.y=element_blank(),
+     axis.ticks.y=element_blank())+
+     theme(axis.line.x = element_line(color = "black"), axis.line.y = element_line(color = "black")
+     )
+     
+plot(p)
+
+#Bar chart working 
+
+library(ggplot2)
+y<-c(6,9,11,13,15)
+data=data.frame(x=LETTERS[1:5], y=y)
+#set up labels
+yat<-c("","3","6","9","12","15","18")
+xat<-c("one","two","three","four","five")
+
+p<-ggplot(, aes(x=x, y=y)) +
+    geom_segment( aes(x=x, xend=x, y=0, yend=y), color="springgreen",size=4) +
+    #geom_point( size=8, color="lawngreen", fill=alpha("springgreen3", 0.3), alpha=0.7,    shape=21, stroke=2)+
+    theme_bw() +
+    scale_y_continuous(limits = c(0,18), breaks = c(0,3,6,9,12,15,18),labels=yat)+
+      coord_flip() + 
+      annotate("text", x = 1.225:5.225, y = 0.01, label = xat, size=4,hjust=0.05,family="serif",fontface =2)+
+      theme(
+     panel.grid.minor.x = element_blank(),
+     panel.grid.minor.y = element_blank(),
+     panel.border = element_blank(),
+     axis.line=element_blank(),
+     axis.title.x=element_blank(),
+     axis.title.y=element_blank(), 
+       axis.text.y=element_blank(),
+     axis.ticks.y=element_blank())+
+     theme(axis.line.x = element_line(color = "black"), axis.line.y = element_line(color = "black")
+     )
+     
+plot(p)
+
+df<-temp%>%group_by()
+
+
+x<-by_month$MY
+y<-by_month$n
+yat<-c('','50','100','150','200','250','300')
+p<-ggplot(by_month, aes(x=x, y=y)) +
+    ylab("No. of articles") +
+    xlab("Years") +
+    geom_segment( aes(x=x, xend=x, y=0, yend=y), color="springgreen",size=4)+
+    scale_y_continuous(breaks = c(0,50,100,150,200,250,300),labels=yat) +
+    #scale_x_discrete( breaks=NULL )
+    
+     
+plot(p) 
+
+
+ 
+p<-p+        theme(
+     panel.grid.minor.x = element_blank(),
+     panel.grid.minor.y = element_blank(),
+     panel.border = element_blank(),
+     axis.line=element_blank(),
+     axis.title.x=element_blank(),
+     axis.title.y=element_blank(), 
+       axis.text.y=element_blank(),
+     axis.ticks.y=element_blank())+
+     theme(axis.line.x = element_line(color = "black"), axis.line.y = element_line(color = "black")
+     )
+     
+plot(p)
+

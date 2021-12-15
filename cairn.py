@@ -67,7 +67,7 @@ with sqlite3.connect('cairndb.db') as con:
         print(isheet.name, '\t', isheet.nrows)
         try:
             for row in range(2490,isheet.nows):
-                
+                print(row)
                 if (isheet.cell_value(row,5).lower()=='english'):
                     link = isheet.hyperlink_map.get((row, 1))
                     url = '(No URL)' if link is None else link.url_or_path        
@@ -88,7 +88,8 @@ with sqlite3.connect('cairndb.db') as con:
                     continue'''
             
         except:
-            print("error at "+ isheet.name+'\t'+ str(row) + '\t'+isheet.cell_value(row,1))
+            print("error triggered")
+            #print("error at "+ isheet.name+'\t'+ str(row) + '\t'+isheet.cell_value(row,1))
         else:
             #print("For "+ str(row) +'\t'+ str(timedelta(seconds=timer()-start)))
             print("For "+ str(row) +'\t'+ str(time.time()-start))
