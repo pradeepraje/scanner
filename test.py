@@ -98,23 +98,16 @@ data=data.frame(x=LETTERS[1:5], y=y)
 #set up labels
 
 
-#lollipol chart working perfect
 
-library(ggplot2)
-y<-c(6,9,11,13,15)
-data=data.frame(x=LETTERS[1:5], y=y)
-#set up labels
-yat<-c("","3","6","9","12","15","18")
-xat<-c("one","two","three","four","five")
+yat<-c("","50","100","150","200","250","300")
 
-p<-ggplot(data, aes(x=x, y=y)) +
-    geom_segment( aes(x=x, xend=x, y=0, yend=y), color="springgreen",size=4) +
-    geom_point( size=8, color="lawngreen", fill=alpha("springgreen3", 0.3), alpha=0.7,    shape=21, stroke=2)+
-    theme_bw() +
-    scale_y_continuous(limits = c(0,18), breaks = c(0,3,6,9,12,15,18),labels=yat)+
-      coord_flip() + 
-      annotate("text", x = 1.225:5.225, y = 0.01, label = xat, size=4,hjust=0.05,family="serif",fontface =2)+
-      theme(
+p2 <- ggplot(by_pub10, aes(x = reorder(Category, -Count), y = Count),label=y) +
+    geom_segment( aes(x=x, xend=x, y=0, yend=y), color="magenta",size=4) +
+    theme_bw()+ scale_x_reverse()+
+      coord_flip()+ 
+      #geom_text(aes(x = reorder(Category, -Count), y = Count,label=y))+
+       annotate("text", x = 1.225:10.225, y =3.01, label = xat, size=4,hjust=0.05,family="serif",fontface =2)+ 
+       theme(
      panel.grid.minor.x = element_blank(),
      panel.grid.minor.y = element_blank(),
      panel.border = element_blank(),
@@ -126,67 +119,8 @@ p<-ggplot(data, aes(x=x, y=y)) +
      theme(axis.line.x = element_line(color = "black"), axis.line.y = element_line(color = "black")
      )
      
-plot(p)
-
-#Bar chart working 
-
-library(ggplot2)
-y<-c(6,9,11,13,15)
-data=data.frame(x=LETTERS[1:5], y=y)
-#set up labels
-yat<-c("","3","6","9","12","15","18")
-xat<-c("one","two","three","four","five")
-
-p<-ggplot(, aes(x=x, y=y)) +
-    geom_segment( aes(x=x, xend=x, y=0, yend=y), color="springgreen",size=4) +
-    #geom_point( size=8, color="lawngreen", fill=alpha("springgreen3", 0.3), alpha=0.7,    shape=21, stroke=2)+
-    theme_bw() +
-    scale_y_continuous(limits = c(0,18), breaks = c(0,3,6,9,12,15,18),labels=yat)+
-      coord_flip() + 
-      annotate("text", x = 1.225:5.225, y = 0.01, label = xat, size=4,hjust=0.05,family="serif",fontface =2)+
-      theme(
-     panel.grid.minor.x = element_blank(),
-     panel.grid.minor.y = element_blank(),
-     panel.border = element_blank(),
-     axis.line=element_blank(),
-     axis.title.x=element_blank(),
-     axis.title.y=element_blank(), 
-       axis.text.y=element_blank(),
-     axis.ticks.y=element_blank())+
-     theme(axis.line.x = element_line(color = "black"), axis.line.y = element_line(color = "black")
-     )
-     
-plot(p)
-
-df<-temp%>%group_by()
-
-
-x<-by_month$MY
-y<-by_month$n
-yat<-c('','50','100','150','200','250','300')
-p<-ggplot(by_month, aes(x=x, y=y)) +
-    ylab("No. of articles") +
-    xlab("Years") +
-    geom_segment( aes(x=x, xend=x, y=0, yend=y), color="springgreen",size=4)+
-    scale_y_continuous(breaks = c(0,50,100,150,200,250,300),labels=yat) +
-    #scale_x_discrete( breaks=NULL )
+    jpeg('by_publi.jpg',res=300,width=6, height=4, unit='in')
+    plot(p2)
+    dev.off()
     
-     
-plot(p) 
-
-
- 
-p<-p+        theme(
-     panel.grid.minor.x = element_blank(),
-     panel.grid.minor.y = element_blank(),
-     panel.border = element_blank(),
-     axis.line=element_blank(),
-     axis.title.x=element_blank(),
-     axis.title.y=element_blank(), 
-       axis.text.y=element_blank(),
-     axis.ticks.y=element_blank())+
-     theme(axis.line.x = element_line(color = "black"), axis.line.y = element_line(color = "black")
-     )
-     
-plot(p)
-
+    
